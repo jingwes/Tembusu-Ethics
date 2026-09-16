@@ -13,8 +13,8 @@ describe('deterministic checks',()=>{
  it('accepts a valid simple interview',()=>expect(reviewStudy(validStudy())).toEqual([]));
  it('rejects empty purpose',()=>{const s=validStudy();s.purpose='';expect(reviewStudy(s).some(i=>i.id==='purpose-short'&&i.severity==='error')).toBe(true);});
  it('rejects placeholders',()=>{const s=validStudy();s.purpose='Fill in the purpose of the study in this space.';expect(reviewStudy(s).some(i=>i.id==='purpose-placeholder')).toBe(true);});
- it('warns when audio is not described',()=>{const s=validStudy();s.permissions.audio=true;expect(reviewStudy(s).some(i=>i.id==='recording-audio'&&i.severity==='warning')).toBe(true);expect(()=>buildDocx(s,base)).not.toThrow();});
- it('warns for interview selection with survey-only prose',()=>{const s=validStudy();s.activity='Participants complete a survey about local community spaces.';expect(reviewStudy(s).some(i=>i.id==='method-Individual interview')).toBe(true);});
+ it('adds audio consent without requiring repeated keywords',()=>{const s=validStudy();s.permissions.audio=true;expect(reviewStudy(s)).toEqual([]);expect(documentBody(s)).toContain('audio recording');expect(()=>buildDocx(s,base)).not.toThrow();});
+ it('does not infer method mismatches from keywords',()=>{const s=validStudy();s.activity='Participants complete a survey about local community spaces.';expect(reviewStudy(s)).toEqual([]);});
  for(const key of ['distress','deception','capacity','pressure'] as const)it(`flags ${key} without blocking generation`,()=>{const s=validStudy();s.safeguards[key]=true;expect(reviewStudy(s).some(i=>i.id===`safeguard-${key}`&&i.severity==='fellow-review')).toBe(true);expect(()=>buildDocx(s,base)).not.toThrow();});
  it('does not claim low risk when distress is selected',()=>{const s=validStudy();s.safeguards.distress=true;expect(pisSections(s)[9].paragraphs[0]).not.toContain('No significant risks');});
  it('includes only separately selected optional consent clauses',()=>{const s=validStudy();expect(optionalPermissions(s)).toEqual([]);s.permissions.audio=true;s.permissions.identity=true;expect(optionalPermissions(s).map(p=>p.key)).toEqual(['audio','identity']);});
@@ -49,3 +49,12 @@ it('formats both page-number fields uniformly',()=>{
  expect(runs.length).toBeGreaterThan(0);
  runs.forEach(run=>{expect(run).toContain('w:ascii="Arial"');expect(run).toContain('<w:sz w:val="22"/>');});
 });
+
+ describe('natural language use cases',()=>{
+  it.each(['Participants test a prototype and explain their choices.','Participants sample different teas and rate their preferences.','Participants fill in a form about their daily commute.','Participants chat one to one about their neighbourhood.','Participants draw a map of places they visit each week.','Participants are watched as they navigate a shared space.'])('accepts everyday activity wording: %s',activity=>{const s=validStudy();s.activity=activity;expect(reviewStudy(s)).toEqual([]);expect(()=>buildDocx(s,base)).not.toThrow();});
+  it('accepts test and sample as meaningful title and purpose words',()=>{const s=validStudy();s.title='A taste test of familiar local foods';s.purpose='We compare how a sample of students experience different foods.';expect(reviewStudy(s)).toEqual([]);});
+  it('allows concise meaningful descriptions with dismissible advice',()=>{const s=validStudy();s.purpose='Explore belonging.';s.activity='Draw a neighbourhood map.';expect(reviewStudy(s).filter(i=>i.severity==='error')).toEqual([]);expect(reviewStudy(s).filter(i=>i.severity==='warning')).toHaveLength(2);expect(()=>buildDocx(s,base)).not.toThrow();});
+  it.each(['test','TBC','xxx','lorem ipsum dolor sit amet','Fill in the purpose of the study here.'])('still detects obvious unfinished text: %s',purpose=>{const s=validStudy();s.purpose=purpose;expect(reviewStudy(s).some(i=>i.id==='purpose-placeholder')).toBe(true);});
+  it('still blocks an empty activity',()=>{const s=validStudy();s.activity=' ';expect(()=>buildDocx(s,base)).toThrow();});
+  it.each(['audio','video','photos'] as const)('generates selected %s permissions without requiring keywords',key=>{const s=validStudy();s.permissions[key]=true;expect(reviewStudy(s)).toEqual([]);expect(optionalPermissions(s).map(p=>p.key)).toContain(key);expect(()=>buildDocx(s,base)).not.toThrow();});
+ });

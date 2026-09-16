@@ -21,7 +21,7 @@ try{
  await page.getByLabel('NUS email address',{exact:true}).fill('alex.tan@u.nus.edu');
  await page.getByLabel('Approximate number of participants').fill('20');
  await page.getByRole('button',{name:'Continue',exact:true}).click();
- await page.getByLabel('What is the purpose of this study?',{exact:true}).fill('This study explores how residents experience belonging and build connections with neighbours in their local community.');
+ await page.getByLabel('What is the purpose of this study?',{exact:true}).fill('Explore belonging.');
  await page.getByLabel('What will participants be asked to do?',{exact:true}).fill('Participants will take part in an individual interview about everyday neighbourhood experiences and community connections.');
  await page.getByLabel('Individual interview',{exact:true}).check();
  await page.getByLabel('Approximately how long will each participant be involved?',{exact:true}).fill('30');
@@ -32,7 +32,7 @@ try{
  await page.getByRole('group',{name:'Will participants be audio recorded?',exact:true}).getByLabel('Yes',{exact:true}).check();
  await page.getByRole('button',{name:'Check study →',exact:true}).click();
  await page.getByRole('button',{name:'Return to section',exact:true}).click();
- await page.waitForFunction(()=>document.activeElement?.getAttribute('data-field')==='activity');
+ await page.waitForFunction(()=>document.activeElement?.getAttribute('data-field')==='purpose');
  await page.getByRole('button',{name:'Check study →',exact:true}).click();
  await page.getByRole('button',{name:'Dismiss',exact:true}).click();
  assert.equal(await page.getByRole('heading',{name:'Please review',exact:true}).count(),0);

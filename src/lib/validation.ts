@@ -2,7 +2,7 @@ import type { Study } from '../types/study';
 import { COURSES } from '../data/courses';
 import { FELLOWS } from '../data/fellows';
 export type FieldErrors = Record<string,string>;
-export const placeholder = /\b(test|tbc|xxx|asdf|lorem ipsum|fill in|title here|sample)\b/i;
+export const placeholder = /^(?:(?:test|sample|tbc|tbd|x{3,}|asdf|title here)[.!\s]*|lorem ipsum\b.*|fill in (?:the |your )?(?:purpose|title|activity|description)\b.*)$/i;
 const email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const integer = (s:string) => s.trim() !== '' && Number.isSafeInteger(Number(s));
 export function validateDetails(s:Study):FieldErrors {
