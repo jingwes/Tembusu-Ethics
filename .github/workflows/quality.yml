@@ -1,0 +1,32 @@
+name: Browser and document quality checks
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/browser-qa.mjs
+      - run: npx tsx scripts/generate-samples.ts
+      - run: sudo apt-get update && sudo apt-get install -y libreoffice-writer poppler-utils fonts-liberation
+      - run: pip install pdf2image
+      - name: Render all document cases
+        run: |
+          for file in qa/case-*.docx qa/all-permissions.docx qa/browser-download.docx; do
+            python scripts/render_docx.py "$file" --output_dir "${file%.docx}-render"
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: quality-evidence
+          path: qa/
+          retention-days: 7
