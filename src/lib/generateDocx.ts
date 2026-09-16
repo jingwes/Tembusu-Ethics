@@ -5,7 +5,7 @@ import { reviewStudy } from './reviewRules';
 const escapeXml=(s:string)=>s.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&apos;');
 function paragraph(text:string,{bold=false,title=false,before=0,keep=false,pageBreak=false}:{bold?:boolean;title?:boolean;before?:number;keep?:boolean;pageBreak?:boolean}={}) {
  const lines=text.split(/\r?\n/).map((line,i)=>`${i?'<w:br/>':''}<w:t xml:space="preserve">${escapeXml(line)}</w:t>`).join('');
- return `<w:p><w:pPr>${title?'<w:pStyle w:val="Title"/><w:jc w:val="center"/>':''}${keep?'<w:keepNext/>':''}<w:widowControl/>${pageBreak?'<w:pageBreakBefore/>':''}<w:spacing w:before="${before}" w:after="120" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:color w:val="000000"/><w:sz w:val="${title?28:20}"/>${bold||title?'<w:b/>':''}</w:rPr>${lines}</w:r></w:p>`;
+ return `<w:p><w:pPr>${title?'<w:pStyle w:val="Title"/>':''}<w:jc w:val="${title?'center':bold||text.includes('\n')||text.includes('___')?'left':'both'}"/>${keep?'<w:keepNext/>':''}<w:widowControl/>${pageBreak?'<w:pageBreakBefore/>':''}<w:spacing w:before="${before}" w:after="120" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:color w:val="000000"/><w:sz w:val="${title?28:20}"/>${bold||title?'<w:b/>':''}</w:rPr>${lines}</w:r></w:p>`;
 }
 export function documentBody(s:Study):string {
  let body=paragraph(DOC_TITLE,{title:true,keep:true,before:300});

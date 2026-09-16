@@ -19,7 +19,7 @@ The four-step wizard generates an editable Word document using a cleaned copy of
 
 All form entries exist only in React memory. No analytics, cookies, browser storage, external form services or API keys are used. The only document-generation request fetches the same-origin blank document base, with no entered values. Refreshing clears the form. Static site assets can be requested from GitHub Pages normally.
 
-Fellow-in-Charge names and automatic emails are maintained in `src/data/fellows.ts`. Courses are in `src/data/courses.ts`; the official first course name is the user-approved sole exception to the coursework terminology rule. Standard document wording is in `src/data/documentText.ts`; deterministic checks are in `src/lib/reviewRules.ts`. Checks use validation and keyword matching, not semantic interpretation. Warnings and fellow-review flags do not block generation; errors do.
+Principal Investigator names and automatic emails are maintained in `src/data/fellows.ts`. Courses are in `src/data/courses.ts`; the official first course name is the user-approved sole exception to the coursework terminology rule. Standard document wording is in `src/data/documentText.ts`; deterministic checks are in `src/lib/reviewRules.ts`. Checks use validation and keyword matching, not semantic interpretation. Warnings and fellow-review flags do not block generation; errors do.
 
 ## Publish
 
@@ -29,4 +29,6 @@ GitHub Pages uses the included Actions workflow. Set repository Settings → Pag
 
 `public/document-base.docx` is a sanitized layout-only derivative of the supplied template: all old body content and core author metadata are removed. The original header and logo are preserved. The footer’s fixed total is replaced with NUMPAGES. The original supplied file is not published.
 
-This tool supports coursework preparation and does not provide formal ethics approval. Selected safeguards show Fellow-in-Charge review notices before participant recruitment.
+This tool supports coursework preparation and does not provide formal ethics approval. Selected safeguards show Principal Investigator review notices before participant recruitment.
+
+Minimum ages are fixed at 18 for NUS students and 21 for non-NUS students. Optional exclusion criteria appear only when entered. Warnings may be dismissed and reappear after study details change.

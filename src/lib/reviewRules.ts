@@ -19,9 +19,9 @@ export function reviewStudy(s:Study):Issue[] {
  for(const key of ['audio','video','photos'] as const)if(s.permissions[key]&&!recording[key].test(s.activity))add(`recording-${key}`,'warning','activity',`You selected ${key==='photos'?'photography':key+' recording'}, but this is not mentioned in the participant activity description.`);
  if((s.unit==='minutes'&&Number(s.duration)>480)||(s.unit==='hours'&&Number(s.duration)>12))add('duration-long','warning','duration',`You entered ${s.duration} ${s.unit}. Please check that the duration is correct.`);
  // The official course title is the sole terminology exception.
- const disallowed=new RegExp('re'+'search|principal investigator|co-investigator','i');
- const fields:Record<string,string>={title:s.title,purpose:s.purpose,activity:s.activity,partner:s.partner,eligibility:s.hasEligibility?s.eligibility:'',otherMethod:s.methods.includes('Other')?s.otherMethod:'',fellowName:s.fellowName,fellowEmail:s.fellowEmail,...Object.fromEntries(s.students.map((p,i)=>[`student${i}`,p.name+' '+p.email]))};
- for(const [field,value] of Object.entries(fields))if(disallowed.test(value.replaceAll(COURSES[0],'')))add(`terminology-${field}`,'error',field,'Use coursework study terminology in this field: “study”, “student investigator” or “Fellow-in-Charge”.');
+ const disallowed=new RegExp('re'+'search|co-investigator','i');
+ const fields:Record<string,string>={title:s.title,purpose:s.purpose,activity:s.activity,partner:s.partner,exclusion:s.exclusion,eligibility:s.hasEligibility?s.eligibility:'',otherMethod:s.methods.includes('Other')?s.otherMethod:'',fellowName:s.fellowName,fellowEmail:s.fellowEmail,...Object.fromEntries(s.students.map((p,i)=>[`student${i}`,p.name+' '+p.email]))};
+ for(const [field,value] of Object.entries(fields))if(disallowed.test(value.replaceAll(COURSES[0],'')))add(`terminology-${field}`,'error',field,'Use coursework study terminology in this field: “study”, “student investigator” or “Principal Investigator”.');
  SAFEGUARDS.forEach(q=>{if(s.safeguards[q.key])add(`safeguard-${q.key}`,'fellow-review',q.key,q.reason);});
  return out;
 }
